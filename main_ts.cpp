@@ -5,6 +5,9 @@
 #include "FuzzyCMeans.h"
 #include <vector>
 #include <list>
+#include <iterator>
+
+#define DBOOST_UBLAS_NDEBUG 1 
 
 using boost::numeric::ublas::matrix;
 using boost::numeric::ublas::vector;
@@ -43,6 +46,13 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 	std::list<int> file_random_lines;
 	utils::choose_random_data(filename, file_random_lines);
     std::vector<int> file_random_lines_vec(file_random_lines.size());
+
+/*
+    std::ostream_iterator<int, char> out(std::cout, " ");
+	copy(file_random_lines.begin(), file_random_lines.end(), out);
+	std::cout << std::endl;
+	*/
+    
     utils::list_to_vector(file_random_lines, file_random_lines_vec);
 
     //dane X
@@ -63,6 +73,7 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 	ts_training.loop();
 	std::cout << "test4\n";
 	ts_training.calculate_G(); // budujemy macierz G.
+	//ts_training.print_G();
 	std::cout << "test5\n";
 	ts_training.calculate_a_opt();
 	std::cout << "test6\n";
@@ -73,8 +84,11 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 
 	X.clear();
 	Y.clear();
+	std::cout << "test8\n";
 	utils::load_data(filename, X, columns, file_random_lines_vec, false);
+	std::cout << "test9\n";
     utils::load_data(filename, Y, y_column, file_random_lines_vec, false);
+    std::cout << "test10\n";
 
     FuzzyCMeans ts_testing(X, c, 2);
 	ts_testing.init_y(Y);

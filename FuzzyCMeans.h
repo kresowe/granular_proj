@@ -16,6 +16,8 @@
 #include <vector>
 #include "invert-matrix.h"
 
+//#define DBOOST_UBLAS_NDEBUG 1 
+
 using boost::numeric::ublas::matrix;
 using boost::numeric::ublas::vector;
 namespace ublas = boost::numeric::ublas; //Michal
@@ -272,12 +274,21 @@ class FuzzyCMeans
         }
     }
 
+    void print_G() {
+        for (unsigned i = 0; i < N_; i++)
+            for (unsigned j = 0; j < (num_clusters_ * (num_dimensions_ + 1) ); j++)
+                std::cout << G_(i, j) << std::endl;
+    }
+
     void calculate_a_opt() {
         //a_opt = (G^T * G)^-1 * G^T * y
         //prepare calculations
         matrix<double> G_transp = ublas::trans(G_); //transpose G matrix
         matrix<double> A = ublas::prod(G_transp, G_); //G^T * G
-        matrix<double> A_inv(N_, num_clusters_ * (num_dimensions_ + 1));
+        matrix<double> A_inv(A.size1(), A.size2());
+        //matrix<double> A_inv(num_clusters_ * (num_dimensions_ + 1), num_clusters_ * (num_dimensions_ + 1));
+        std::cout << A.size1() << " " << A.size2() << std::endl;
+        std::cout << "N = " << N_ << ", num_clusters_ = " << num_clusters_ << ", num_dimensions_ = " << num_dimensions_ << std::endl;
         InvertMatrix<double>(A, A_inv);
 
         //stl to ublas

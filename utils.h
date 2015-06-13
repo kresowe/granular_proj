@@ -136,10 +136,11 @@ namespace utils
         lines = 0;
         j = 0;
 
+        /*
         for (j = 0; j < file_random_lines_vec.size(); j++)
             std::cout << file_random_lines_vec[j] << std::endl;
 
-        j = 0;
+        j = 0; */
         while (!fin.eof() && j < file_random_lines_vec.size())
         {
             data.clear();
@@ -150,31 +151,34 @@ namespace utils
                 (!incl && lines == file_random_lines_vec[j]))
             {
                 lines++;
-                continue;
+                //continue;
             }
-            //uzyj tylko tych, ktore zostaly wylosowane
-            split_on_whitespace(line, data); //splituj ja
-            
-            for (unsigned m = 0; m < data.size(); m++)
-                std::cout << data[m] << std::endl;
-            std::cout << std::endl;
-
-            //zapisz w formie double do container.
-            for (i = 0; i < n; i++) 
+            else 
             {
-                std::cout << "value0: " << data[columns[i]] << std::endl; //(1)
-                std::string::size_type sz;
-                container[j][i] = std::stod (data[columns[i]],&sz);
+                //uzyj tylko tych, ktore zostaly wylosowane
+                split_on_whitespace(line, data); //splituj ja
                 /*
-                strin.str(data[columns[i]]);
-                strin >> val;
-                
-                std::cout << "value: " << val << std::endl; //(2) 
-                container[j][i] = val;*/
-                std::cout << container[j][i] << std::endl;
+                for (unsigned m = 0; m < data.size(); m++)
+                    std::cout << data[m] << std::endl;
+                std::cout << std::endl;*/
+
+                //zapisz w formie double do container.
+                for (i = 0; i < n; i++) 
+                {
+                    //std::cout << "value0: " << data[columns[i]] << std::endl; //(1)
+                    std::string::size_type sz;
+                    container[j][i] = std::stod (data[columns[i]],&sz);
+                    /*
+                    strin.str(data[columns[i]]);
+                    strin >> val;
+                    
+                    std::cout << "value: " << val << std::endl; //(2) 
+                    container[j][i] = val;*/
+                    //std::cout << container[j][i] << std::endl;
+                }
+                lines++;
+                j++;
             }
-            lines++;
-            j++;
 
         }
         /*for (j = 0; j < container.size(); j++)
@@ -214,9 +218,8 @@ namespace utils
             split_on_whitespace(line, data); //splituj ja
 
             //zapisz w formie double do container.
-            strin.str(data[column]);
-            strin >> val;
-            container[j] = val;
+            std::string::size_type sz;
+            container[j] = std::stod (data[column],&sz);
             lines++;
             j++;
 
