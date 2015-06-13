@@ -8,6 +8,7 @@
 #include <iterator>
 
 #define DBOOST_UBLAS_NDEBUG 1 
+#define BOOST_UBLAS_NDEBUG 1 
 
 using boost::numeric::ublas::matrix;
 using boost::numeric::ublas::vector;
@@ -82,8 +83,8 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 	std::vector<double> a_opt_train(ts_training.get_a_opt());
 	std::cout << "test7\n";
 
-	X.clear();
-	Y.clear();
+	X.resize(utils::number_of_lines_in_file(filename) - file_random_lines_vec.size());
+	Y.resize(utils::number_of_lines_in_file(filename) - file_random_lines_vec.size());
 	std::cout << "test8\n";
 	utils::load_data(filename, X, columns, file_random_lines_vec, false);
 	std::cout << "test9\n";

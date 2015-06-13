@@ -13,7 +13,8 @@ lu_substitute(A, piv, x);
  #ifndef INVERT_MATRIX_HPP
  #define INVERT_MATRIX_HPP
 
- #define BOOST_UBLAS_NDEBUG 1 
+ #define DBOOST_UBLAS_NDEBUG 1 
+#define BOOST_UBLAS_NDEBUG 1 
 
  // REMEMBER to update "lu.hpp" header includes from boost-CVS
  #include <boost/numeric/ublas/vector.hpp>

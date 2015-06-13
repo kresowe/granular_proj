@@ -16,7 +16,8 @@
 #include <vector>
 #include "invert-matrix.h"
 
-//#define DBOOST_UBLAS_NDEBUG 1 
+#define DBOOST_UBLAS_NDEBUG 1 
+#define BOOST_UBLAS_NDEBUG 1 
 
 using boost::numeric::ublas::matrix;
 using boost::numeric::ublas::vector;
