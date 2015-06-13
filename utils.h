@@ -50,12 +50,12 @@ namespace utils
     }
 
     //Michal
-    void split_on_whitespace(std::string str, std::string *elements, int n) {
+    void split_on_whitespace(std::string str, std::vector<std::string> &elements) {
         int pos = 0;
-        int i = 0;
-        while ((pos = str.find(" ")) != std::string::npos && i < n)
+        elements.clear();
+        while ((pos = str.find(" ")) != std::string::npos)
         {
-            elements[i++] = str.substr(0, pos);
+            elements.push_back(str.substr(0, pos));
             while (str[pos] == ' ')
                 pos++;
             str.erase(0, pos + 1);
@@ -113,10 +113,9 @@ namespace utils
         std::vector<int> columns, std::vector<int> file_random_lines_vec, 
         bool incl) {
         int n = columns.size();
-        int N = 20;
         std::ifstream fin;
         std::string line;
-        std::string data[N];
+        std::vector<std::string> data;
         std::stringstream strin;
         int lines;
         double val;
@@ -138,7 +137,7 @@ namespace utils
                 continue;
             }
             //uzyj tylko tych, ktore zostaly wylosowane
-            split_on_whitespace(line, data, N); //splituj ja
+            split_on_whitespace(line, data); //splituj ja
 
             //zapisz w formie double do container.
             for (int i = 0; i < n; i++) 
@@ -160,10 +159,9 @@ namespace utils
     */
     void load_data(const char *filename, std::vector<double> container, int column, 
         const std::vector<int> file_random_lines_vec, bool incl) {
-        int N = 20;
         std::ifstream fin;
         std::string line;
-        std::string data[N];
+        std::vector<std::string> data;
         std::istringstream strin;
         int lines;
         double val;
@@ -183,7 +181,7 @@ namespace utils
                 lines++;
                 continue;
             }
-            split_on_whitespace(line, data, N); //splituj ja
+            split_on_whitespace(line, data); //splituj ja
 
             //zapisz w formie double do container.
             strin.str(data[column]);
