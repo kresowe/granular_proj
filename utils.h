@@ -5,12 +5,15 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/token_functions.hpp>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <ctime>
 #include <cstdlib>
 #include <list>
+#include <iterator>
 namespace utils
 {
     using boost::numeric::ublas::matrix;
@@ -51,15 +54,19 @@ namespace utils
 
     //Michal
     void split_on_whitespace(std::string str, std::vector<std::string> &elements) {
-        int pos = 0;
+        boost::char_separator<char> sep{" "};
+        boost::tokenizer<boost::char_separator<char>> tok(str, sep);
+        std::copy(tok.begin(),tok.end(), std::back_inserter(elements));
+
+        /*int pos = 0;
         elements.clear();
         while ((pos = str.find(" ")) != std::string::npos)
         {
             elements.push_back(str.substr(0, pos));
             while (str[pos] == ' ')
                 pos++;
-            str.erase(0, pos + 1);
-        }
+            str.erase(0, pos);
+        }*/
     }
 
     int number_of_lines_in_file(const char *filename) {
@@ -73,6 +80,7 @@ namespace utils
         while (std::getline(fin, line))
             number_of_lines++;
         fin.close();
+        std::cout << "File has " << number_of_lines << " lines.\n";
         return number_of_lines;
     }
 
@@ -91,7 +99,7 @@ namespace utils
         lines_list.unique();
     }
 
-    void list_to_vector(std::list<int> a_list, std::vector<int> a_vec) {
+    void list_to_vector(std::list<int> a_list, std::vector<int> &a_vec) {
         int i = 0;
         for (std::list<int>::iterator it = a_list.begin(); it != a_list.end(); ++it)
         {
@@ -119,7 +127,7 @@ namespace utils
         std::stringstream strin;
         int lines;
         double val;
-        int j;
+        int i, j;
 
         fin.open(filename);
         if (!fin.is_open()) //przy nadmiarze czasu zmienic na obsluge wyjatkow
@@ -127,9 +135,17 @@ namespace utils
 
         lines = 0;
         j = 0;
-        while (!fin.eof())
+
+        for (j = 0; j < file_random_lines_vec.size(); j++)
+            std::cout << file_random_lines_vec[j] << std::endl;
+
+        j = 0;
+        while (!fin.eof() && j < file_random_lines_vec.size())
         {
+            data.clear();
             std::getline(fin, line);
+            std::cout << "Linia: " << line << std::endl;
+            std::cout << lines << " " << file_random_lines_vec[j] << std::endl;
             if ((incl && lines != file_random_lines_vec[j]) || 
                 (!incl && lines == file_random_lines_vec[j]))
             {
@@ -138,18 +154,32 @@ namespace utils
             }
             //uzyj tylko tych, ktore zostaly wylosowane
             split_on_whitespace(line, data); //splituj ja
+            
+            for (unsigned m = 0; m < data.size(); m++)
+                std::cout << data[m] << std::endl;
+            std::cout << std::endl;
 
             //zapisz w formie double do container.
-            for (int i = 0; i < n; i++) 
+            for (i = 0; i < n; i++) 
             {
+                std::cout << "value0: " << data[columns[i]] << std::endl; //(1)
+                std::string::size_type sz;
+                container[j][i] = std::stod (data[columns[i]],&sz);
+                /*
                 strin.str(data[columns[i]]);
                 strin >> val;
-                container[lines][i] = val;
+                
+                std::cout << "value: " << val << std::endl; //(2) 
+                container[j][i] = val;*/
+                std::cout << container[j][i] << std::endl;
             }
             lines++;
             j++;
 
         }
+        /*for (j = 0; j < container.size(); j++)
+            for (i = 0; i < n; i++)
+                std::cout << container[j][i] << std::endl;*/
         fin.close();
     }
 
@@ -172,7 +202,7 @@ namespace utils
 
         lines = 0;
         int j = 0;
-        while (!fin.eof())
+        while (!fin.eof() && j < file_random_lines_vec.size())
         {
             std::getline(fin, line);
             if ((incl && lines != file_random_lines_vec[j]) || 
@@ -186,7 +216,7 @@ namespace utils
             //zapisz w formie double do container.
             strin.str(data[column]);
             strin >> val;
-            container[lines] = val;
+            container[j] = val;
             lines++;
             j++;
 
