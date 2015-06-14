@@ -78,10 +78,10 @@ namespace utils
         return number_of_lines;
     }
 
-    void choose_random_data(const char *filename, std::list<int> &lines_list) {
+    void choose_random_data(const char *filename, std::list<int> &lines_list, double coefficient) {
         srand(time(NULL));
         int number_of_lines = number_of_lines_in_file(filename);
-        int data_number = 0.6 * number_of_lines;
+        int data_number = coefficient * number_of_lines;
         int random_line;
 
         for (int i = 0; i < data_number; i++)

@@ -14,7 +14,15 @@
 using boost::numeric::ublas::matrix;
 using boost::numeric::ublas::vector;
 
-void ts(const char *filename, std::vector<int> columns, int y_column);
+/*
+* Takagi sugeno
+* filename - name of file with data
+* columns - number of columns in file which contain data
+* c - number of clusters
+* outfile_name - name of file where output is written
+*/
+void ts(const char *filename, std::vector<int> columns, int y_column, int c, 
+	const char *outfile_name, double coefficient);
 
 void newline()
 {
@@ -23,30 +31,54 @@ void newline()
 
 int main()
 {
+	int i;
+
+	//Housing
 	//wybor kolumn 
     std::vector<int> columns;
     columns.push_back(1);
     columns.push_back(2);
-    for (int i = 4; i <= 13; i++)
+    for (i = 4; i <= 13; i++)
     	columns.push_back(i);
     int y_column = 0;
 
-    ts("housing.data", columns, y_column);
+    std::ofstream fout;
+    fout.open("housing_result.dat");
+    fout.close();
+
+    //for (int clusters = 2; clusters < 21; clusters += 2) //takes a few minutes //uncomment to analyze quality(clusters)
+    int clusters = 5; //short version
+    	ts("housing.data", columns, y_column, clusters, "housing_result.dat", 0.6);
+
+    /*quality(coefficient)
+    
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.3);
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.4);
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.5);
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.6);
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.7);
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.8);
+    ts("housing.data", columns, y_column, clusters, "housing_result_coeff.dat", 0.9);
+	*/
 
 	return 0;
 }
 
 
 
-void ts(const char *filename, std::vector<int> columns, int y_column) {
+void ts(const char *filename, std::vector<int> columns, int y_column, int c, 
+	const char *outfile_name, double coefficient) {
 	//int N = 300; //liczba danych
 	//int n = 3; //wymiar danych
-	int c = 5; //liczba grup
+	//int c = 5; //liczba grup
+	std::ofstream fout;
+    fout.open(outfile_name, std::ofstream::app);
+    double train_quality, test_quality;
 
 	//wczytywanie danych
 	//wylosowanie zbioru treningowego
 	std::list<int> file_random_lines;
-	utils::choose_random_data(filename, file_random_lines);
+	utils::choose_random_data(filename, file_random_lines, coefficient);
     std::vector<int> file_random_lines_vec(file_random_lines.size());
 
 /*
@@ -80,8 +112,9 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 	ts_training.calculate_a_opt();
 	std::cout << "test6\n";
 	ts_training.calculate_y_estimated();
+	train_quality = ts_training.quality_ts();
 	std::cout << "Training: quality Q = " << std::setw(10) << std::setprecision(8) << std::fixed 
-		<< ts_training.quality_ts() << std::endl;
+		<< train_quality << std::endl;
 	std::cout.unsetf(std::ios_base::fixed);
 	std::vector<double> a_opt_train(ts_training.get_a_opt());
 	std::cout << "test7\n";
@@ -105,7 +138,10 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 	ts_testing.calculate_G(); // budujemy macierz G.
 	ts_testing.set_a_opt(a_opt_train);
 	ts_testing.calculate_y_estimated();
+	test_quality = ts_testing.quality_ts();
 	std::cout << "testing: quality Q = " << std::setw(10) << std::setprecision(8) << std::fixed 
-		<< ts_testing.quality_ts() << std::endl;
+		<< test_quality << std::endl;
+	fout << c << " " << train_quality << " " << test_quality << " " << coefficient << std::endl;
+	fout.close();
 
 }

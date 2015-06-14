@@ -1,0 +1,119 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{framed}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{bm}
+\usepackage{amssymb}
+
+\author{Michał Barej, Paweł Kaim}
+\begin{document}
+\title{\textbf{Granular Computing: An Introduction. Projekt}}
+\maketitle
+
+\section{Sformułowanie problemu}
+\paragraph{}
+Pierwsza część projektu polegała na konstrukcji ziaren informacji. W tym celu, podobnie jak na laboratoriach, użyliśmy algorytmu Fuzzy C-Means.
+\paragraph{}
+Druga część dotyczyła użycia systemu regułowego Takagi sugeno. Konkretny zbiór danych dzieliliśmy na dwie części, z których pierwsza służyła jako zbiór treningowy, a druga za zbiór testowy. Nawiązujemy tu do systemów uczenia maszynowego. Na podstawie danych ze zbioru treningowego, program oblicza optymalne wartości funkcji modelu liniowego. Następnie w części testowej, używa tych właśnie wartości do obliczenia oczekiwanych wartości dla danych ze zbioru treningowego.
+
+\section{Szczegółowy algorytm i opis eksperymentów}
+\subsection{Metodologia pracy}
+\paragraph{}
+Projekt został wykonany w dwuosobowej grupie w składzie: Michał Barej, Paweł Kaim.
+\paragraph{}
+Podział pracy był następujący:
+\begin{itemize}
+\item Implementacja Fuzzy C-Means: Paweł
+\item Implementacja Takagi Sugeno: Michał
+\end{itemize}
+\paragraph{}
+Algorytmy zostały zaimplementowane w języku C++ z użyciem rozszerzeń kolekcji bibliotek Boost. Wykresy wykonano z użyciem programu Gnuplot. Podczas współpracy zespołu celem poprawy błędów w kodzie programu, używaliśmy repozytorium na GitHubie.
+
+\subsection{Fuzzy C-Means}
+\paragraph{}
+Paweł napisz coś o algorytmie FCM.
+
+\subsection{Takagi Sugeno}
+\paragraph{}
+\textbf{Przyjęte oznaczenia:}\\
+\begin{itemize}
+\item $ \bm{u}$  - wektor u
+\item $\mathbb{A}$ - macierz A
+\item i, j, k - indeksy
+\item N - liczba danych (punktów pomiarowych) (w klasie FuzzyCMeans: N\_)
+\item n - wymiar przestrzeni danych (num\_dimensions\_) 
+\item c - liczba grup (klastrów) (num\_clusters\_)
+\item m - współczynnik rozmycia
+\end{itemize}
+
+\paragraph{}
+\textbf{1.} Mamy dane eksperymentalne typu: $(\bm{x_N}, y_k )$\\
+czyli: $(\bm{x_1}, y_1), (\bm{x_2}, y_2), ..., (\bm{x_N}, y_N)$,\\
+gdzie: $\bm{x_k} = [x_{k,1}, x_{k,2}, \ldots, x_{k, n}]$ jest punktem pomiarowym o n wymiarach,\\
+zaś: $y_1, y_2, \ldots, y_N$ - liczby.
+\paragraph{}
+Najpierw do analizy losujemy pewną ilość punktów, które posłużą jako zbiór treningowy. 
+
+\paragraph{}
+\textbf{2.} Obliczamy stopnie przynależności poszczególnych punktów pomiarowych do danych grup: $A_i(\bm{x_k})$, korzystając w tym celu ze wzoru z części Fuzzy C-Means:
+\[A_i(\bm{x_k}) = \frac{1}{\sum_{j = 1}^{c} \left(\frac{||\bm{x_k} - \bm{v_i}||}{||\bm{x_k} - \bm{v_j}||}\right)^{\frac{2}{m - 1}}}\]
+
+\paragraph{}
+\textbf{3.} Budujemy macierz $\mathbb{G}_{N \times c(n + 1)}$, używając: $A_i(\bm{x_k})$, $\bm{x_k}$. Mianowicie:
+\[ \mathbb{G} = \begin{bmatrix} \bm{g_1}(\bm{x_1})& \bm{g_2}(\bm{x_1}) & \ldots & \bm{g_c}(\bm{x_1})\\ \bm{g_1}(\bm{x_2})& \bm{g_2}(\bm{x_2}) & \ldots & \bm{g_c}(\bm{x_2}) \\ \ldots & \ldots & \ldots \\ \bm{g_1}(\bm{x_N})& \bm{g_2}(\bm{x_N}) & \ldots & \bm{g_c}(\bm{x_N}) \end{bmatrix} \]
+Przykładowo wiersz pierwszy możemy rozpisać jako:\\
+$ [A_1(\bm{x_1}) \cdot 1 , A_1(\bm{x_1}) \cdot x_{1,1} , A_1(\bm{x_1}) \cdot x_{1,2} , \ldots , A_1(\bm{x_1}) \cdot x_{1,n} , A_2(\bm{x_1}) \cdot 1 , A_2(\bm{x_1}) \cdot x_{1,1} , A_2(\bm{x_1}) \cdot x_{1,2} , \ldots , A_2(\bm{x_1}) \cdot x_{1,n} , \ldots , \ldots , \ldots , \ldots , \ldots , A_c(\bm{x_1}) \cdot 1 , A_c(\bm{x_1}) \cdot x_{1,1} , A_c(\bm{x_1}) \cdot x_{1,2} , \ldots , A_c(\bm{x_1}) \cdot x_{1,n} ]  $
+
+\paragraph{}
+\textbf{4.} Znajdujemy $\bm{a_{opt}} = \begin{bmatrix} \bm{a_1} & \bm{a_2} & \ldots & \bm{a_c} \end{bmatrix}$, gdzie:\\
+$\bm{a_i} = \begin{bmatrix} \bm{a_{i, 0}} & \bm{a_{i, 1}} & \ldots & \bm{a_{i, n}} \end{bmatrix}$\\
+Wartość $\bm{a_{opt}}$ znajdujemy za pomocą wzoru analitycznego:
+\[ \bm{a_{opt}} = (\mathbb{G}^T \mathbb{G})^{-1} (\mathbb{G}^T \bm{y}) \]
+Tutaj oczywiście:\\
+$\bm{y} = \begin{bmatrix} y_1 & y_2 & \ldots & y_N \end{bmatrix}$
+
+\paragraph{}
+\textbf{5.} Teraz obliczamy estymowane wartości dla każdego $\bm{x_k}$:\\
+$\hat{y_i} = a_{i,0} + a_{i, 1} \cdot x_{k, 1} + \ldots + a_{i, n} \cdot x_{k, n}$.\\
+Macierzowo natomiast:
+\[ \bm{\hat{y_N}} = \mathbb{G}_{N \times c(n + 1)} \cdot \bm{a_{c(n + 1)}} \] 
+
+\paragraph{}
+\textbf{6.} Następnie korzystamy z metody najmniejszych kwadratów do oszacowania jakości:
+\[ Q = \sqrt{\frac{1}{N} \sum_{k = 1}^{N} (\hat{y_k} - y_k)^2} \]
+
+\paragraph{}
+\textbf{7.} Ta część posłużyła do znalezienia optymalnych współczynników na podstawie danych. Była to zatem część treningowa. Zakładając, że próbka danych była dostatecznie reprezentatywna, wydaje się, że możemy przyjąć, iż te same zoptymalizowane współczynniki zadziałają nieźle do obliczenia szacowanych wartości $y_i$ dla pozostałych danych z tego samego zbioru danych. Posłużą one jako zbiór testowy.
+
+\paragraph{}
+\textbf{8.} Na tej podstawie powtórzyć możemy punkty: 2. i 3. Po nich natomiast od razu przechodzimy do 5. W nim skorzystamy właśnie z wcześniej obliczonych wartości współczynników. Celem porównania posłuży ponownie wykonany punkt 6. 
+
+\paragraph{}
+Podkreślmy tu jeszcze tylko, że używane np. w punkcie 6. N będzie różne w przypadku zbioru treningowego i testowego (zależnie od podziału). Łącznie dadzą one natomiast liczbę wszystkich punktów.
+
+\subsection{Analizy Fuzzy C-Means}
+\paragraph{}
+Przykładowe działanie: podać jakie dane (losowe?, wymiar, liczba grup). Wstawić wykresy.
+
+\subsection{Analizy na bazie Takagi Sugeno}
+\paragraph{}
+Z tytułu dużej losowości wyboru danych do analizy i ich rozbieżności w ramach zbioru danych, eksperymenty będą miarodajne tylko jeśli zostaną powtórzone np. 10 razy.
+
+\paragraph{}
+\textbf{1.} W pierwszej analizie chcieliśmy sprawdzić, jak współczynnik jakości zbioru treningowego i testowego zależy od liczby grup (klastrów). Do analizy użyto zestawu danych Housing pochodzącego ze strony\\
+http://archive.ics.uci.edu/ml/datasets.html \\
+Wyniki zilustrowano wykresem:\\
+\textbf{zrobić ten wykres!}
+\paragraph{}
+\textbf{2.} Kolejna analiza dotyczyła tego, jak współczynnik jakości zależy od zamierzonego podziału na zbiór treningowy i testujący.
+
+\section{Wnioski}
+\paragraph{}
+Wnioski....
+
+\end{document}
