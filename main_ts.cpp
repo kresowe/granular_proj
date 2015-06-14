@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <iterator>
+#include <iomanip>
 
 #define DBOOST_UBLAS_NDEBUG 1 
 #define BOOST_UBLAS_NDEBUG 1 
@@ -79,11 +80,13 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
 	ts_training.calculate_a_opt();
 	std::cout << "test6\n";
 	ts_training.calculate_y_estimated();
-	std::cout << "Training: quality Q = " << ts_training.quality_ts() << std::endl;
+	std::cout << "Training: quality Q = " << std::setw(10) << std::setprecision(8) << std::fixed 
+		<< ts_training.quality_ts() << std::endl;
+	std::cout.unsetf(std::ios_base::fixed);
 	std::vector<double> a_opt_train(ts_training.get_a_opt());
 	std::cout << "test7\n";
 
-	X.resize(utils::number_of_lines_in_file(filename) - file_random_lines_vec.size());
+	X.resize(utils::number_of_lines_in_file(filename) - file_random_lines_vec.size(), vector<double>(columns.size()));
 	Y.resize(utils::number_of_lines_in_file(filename) - file_random_lines_vec.size());
 	std::cout << "test8\n";
 	utils::load_data(filename, X, columns, file_random_lines_vec, false);
@@ -91,12 +94,18 @@ void ts(const char *filename, std::vector<int> columns, int y_column) {
     utils::load_data(filename, Y, y_column, file_random_lines_vec, false);
     std::cout << "test10\n";
 
+    //for (int i = 0; i < )
+
     FuzzyCMeans ts_testing(X, c, 2);
+    std::cout << "test11\n";
 	ts_testing.init_y(Y);
+	std::cout << "test12\n";
 	ts_testing.loop();
+	std::cout << "test13\n";
 	ts_testing.calculate_G(); // budujemy macierz G.
 	ts_testing.set_a_opt(a_opt_train);
 	ts_testing.calculate_y_estimated();
-	std::cout << "testing: quality Q = " << ts_testing.quality_ts() << std::endl;
+	std::cout << "testing: quality Q = " << std::setw(10) << std::setprecision(8) << std::fixed 
+		<< ts_testing.quality_ts() << std::endl;
 
 }

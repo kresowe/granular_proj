@@ -61,16 +61,6 @@ namespace utils
         boost::char_separator<char> sep{" "};
         boost::tokenizer<boost::char_separator<char>> tok(str, sep);
         std::copy(tok.begin(),tok.end(), std::back_inserter(elements));
-
-        /*int pos = 0;
-        elements.clear();
-        while ((pos = str.find(" ")) != std::string::npos)
-        {
-            elements.push_back(str.substr(0, pos));
-            while (str[pos] == ' ')
-                pos++;
-            str.erase(0, pos);
-        }*/
     }
 
     int number_of_lines_in_file(const char *filename) {
@@ -128,73 +118,64 @@ namespace utils
         std::ifstream fin;
         std::string line;
         std::vector<std::string> data;
-        std::stringstream strin;
         int lines;
-        double val;
-        int i, j;
+        int i, j, k;
         std::string::size_type sz;
 
-        std::cout << container.size() << std::endl;
+        //std::cout << container.size() << std::endl;
 
         fin.open(filename);
         if (!fin.is_open()) //przy nadmiarze czasu zmienic na obsluge wyjatkow
             std::cerr << "Cannot open data file " << filename << ".\n";
 
         lines = 0;
-        j = 0;
+        k = j = 0;
 
-        /*
-        for (j = 0; j < file_random_lines_vec.size(); j++)
-            std::cout << file_random_lines_vec[j] << std::endl;
-
-        j = 0; */
-        while (!fin.eof() && j < file_random_lines_vec.size() )
+        while (!fin.eof() && (j < file_random_lines_vec.size()) )
         {
             data.clear();
             std::getline(fin, line);
-            //std::cout << "Linia: " << line << std::endl;
             
 
             if ((incl && lines != file_random_lines_vec[j]) || 
                 (!incl && lines == file_random_lines_vec[j]))
             {
-                std::cout << "a\n";
+                //std::cout << "a\n"; //test
                 lines++;
-                //continue;
             }
             else 
             {
-                std::cout << lines << " " << file_random_lines_vec[j] << std::endl;
-                //std::cout << "load_test\n";
+                //std::cout << lines << " " << file_random_lines_vec[j] << std::endl; //test
                 //uzyj tylko tych, ktore zostaly wylosowane
                 split_on_whitespace(line, data); //splituj ja
-                /*
-                for (unsigned m = 0; m < data.size(); m++)
-                    std::cout << data[m] << std::endl;
-                std::cout << std::endl;*/
-                //std::cout << "load_test\n";
 
                 //zapisz w formie double do container.
                 for (i = 0; i < n; i++) 
                 {
-                    //std::cout << "value0: " << data[columns[i]] << std::endl; //(1)
-                    container[j][i] = std::stod(data[columns[i]], &sz);
+                    if (incl)
+                        container[j][i] = std::stod(data[columns[i]], &sz);
+                    else
+                    {
+                        container[k][i] = std::stod(data[columns[i]], &sz);
+                    }
 
-                    //std::cout << container[j][i] << std::endl;
                 }
                 lines++;
                 if (incl)
                     j++;
+                else
+                {
+                    k++;
+                    //std::cout << "Wczytano linijke: " << lines << ", k = " << k << std::endl; //test
+                }
 
             }
-            if (!incl && lines > file_random_lines_vec[j] && 
-                j < file_random_lines_vec.size())
+            if (!incl && (lines > file_random_lines_vec[j]) && 
+                (j < file_random_lines_vec.size()))
                 j++;
-
         }
-        /*for (j = 0; j < container.size(); j++)
-            for (i = 0; i < n; i++)
-                std::cout << container[j][i] << std::endl;*/
+
+        //std::cout << "Dodano " << j << " wartosci dla x.\n"; //test
         fin.close();
     }
 
@@ -202,14 +183,12 @@ namespace utils
     * Function for y data (scalar (1D) variable)
     * overloads
     */
-    void load_data(const char *filename, std::vector<double> container, int column, 
+    void load_data(const char *filename, std::vector<double> &container, int column, 
         const std::vector<int> file_random_lines_vec, bool incl) {
         std::ifstream fin;
         std::string line;
         std::vector<std::string> data;
-        std::istringstream strin;
         int lines;
-        double val;
         std::string::size_type sz;
 
         fin.open(filename);
@@ -218,24 +197,33 @@ namespace utils
 
         lines = 0;
         int j = 0;
+        int k = 0;
         while (!fin.eof() && j < file_random_lines_vec.size())
         {
+            data.clear();
             std::getline(fin, line);
             if ((incl && lines != file_random_lines_vec[j]) || 
                 (!incl && lines == file_random_lines_vec[j]))
             {
                 lines++;
-                continue;
+            }
+            else 
+            {
+                split_on_whitespace(line, data); //splituj ja
+
+                //zapisz w formie double do container.
+                if (incl)
+                    container[j] = std::stod(data[column], &sz);
+                else
+                    container[k++] = std::stod(data[column], &sz);
+                lines++;
+                j++; 
             }
 
-            split_on_whitespace(line, data); //splituj ja
-
-            //zapisz w formie double do container.
-            container[j] = std::stod(data[column], &sz);
-            lines++;
-            j++;
+            
 
         }
+        //std::cout << "Dodano " << j << " wartosci do y.\n"; //test
         fin.close();
     }
 

@@ -246,19 +246,14 @@ class FuzzyCMeans
     }
 
     //Michal
-   /* double get_x(unsigned k, unsigned l) {
-        return X_[k][l];
-    }
 
-    double get_u(unsigned i, unsigned k) {
-        return U_[k][i];
-    }*/
 
     void init_y(std::vector<double> v) {
-        std::cout << "test\n";
-        for (unsigned i = 0; i < N_; i++)
-            y_[i] = v[i];
-
+        y_.clear();
+        for (unsigned i = 0; i < N_; i++) 
+        {
+            y_.push_back(v[i]);
+        }
     }
 
     void calculate_G() {
@@ -282,28 +277,34 @@ class FuzzyCMeans
     }
 
     void calculate_a_opt() {
-        //a_opt = (G^T * G)^-1 * G^T * y
+        //a_opt = (G^T * G)^-1 * (G^T * y)
+
         //prepare calculations
-        matrix<double> G_transp = ublas::trans(G_); //transpose G matrix
+         matrix<double> G_transp = ublas::trans(G_); //transpose G matrix
         matrix<double> A = ublas::prod(G_transp, G_); //G^T * G
         matrix<double> A_inv(A.size1(), A.size2());
-        //matrix<double> A_inv(num_clusters_ * (num_dimensions_ + 1), num_clusters_ * (num_dimensions_ + 1));
-        std::cout << A.size1() << " " << A.size2() << std::endl;
-        std::cout << "N = " << N_ << ", num_clusters_ = " << num_clusters_ << ", num_dimensions_ = " << num_dimensions_ << std::endl;
+        //std::cout << A.size1() << " " << A.size2() << std::endl; //test
+        //std::cout << "N = " << N_ << ", num_clusters_ = " << num_clusters_ << ", num_dimensions_ = " << num_dimensions_ << std::endl;
         InvertMatrix<double>(A, A_inv);
 
         //stl to ublas
         vector<double> a_opt_v(num_clusters_ * (num_dimensions_ + 1));
         vector<double> y_v(N_);
         for (unsigned i = 0; i < y_v.size(); i++)
+        {
             y_v(i) = y_[i];
+            
+        }
 
         //actually calculate
-        a_opt_v = ublas::prod(ublas::prod(A, G_transp), y_v);
+        vector<double> b = ublas::prod(G_transp, y_v);
+        a_opt_v = ublas::prod(A_inv, b);
 
         //ublas to stl
-        for (unsigned i = 0; i < y_v.size(); i++)
-            y_[i] = y_v(i);
+        for (unsigned i = 0; i < a_opt_v.size(); i++)
+        {
+            a_opt_[i] = a_opt_v(i);
+        }
     }
 
     void calculate_y_estimated() {
@@ -311,7 +312,9 @@ class FuzzyCMeans
         vector<double> a_opt_v(num_clusters_ * (num_dimensions_ + 1));
         vector<double> y_estimated_v(N_);
         for (unsigned i = 0; i < a_opt_v.size(); i++)
+        {
             a_opt_v(i) = a_opt_[i];
+        }
 
         //calculate
         y_estimated_v = prod(G_, a_opt_v);
@@ -323,10 +326,18 @@ class FuzzyCMeans
 
     //znormalizowany wsplczynnik jakosci dla TS
     double quality_ts(){
+        unsigned i;
         double result = 0.;
-        for (unsigned i = 0; i < N_; i++)
+        std::cout << "Counting quality...\n";
+       /* std::cout << "y size = " << y_.size() << std::endl;
+        std::cout << "y_estimated size = " << y_estimated.size() << std::endl;*/
+        for (i = 0; i < N_; i++)
+        {
+            //std::cout << y_[i] << " " << y_estimated[i] << std::endl;
             result += (y_[i] - y_estimated[i]) * (y_[i] - y_estimated[i]);
-        return std::sqrt(result / N_);
+        }
+        //std::cout << "Wykonano: " << i << " iteracji.\n";
+        return std::sqrt(result / (double)N_);
     }
 
     std::vector<double> get_a_opt() {
